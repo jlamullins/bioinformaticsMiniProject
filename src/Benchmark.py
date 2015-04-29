@@ -33,7 +33,7 @@ def benchmark(ML, NM, SL, SC):
     
     # Step 6: Write out the SC sequences into a FASTA format file called
     # "sequences.fa"
-    directory = "/bioData/" + dirName + str(dirNum) + "/";
+    directory = "../bioData/" + dirName + str(dirNum) + "/";
     if not os.path.exists(directory):
         os.makedirs(directory);
     writeSequencesToFiles(sequences, directory + "sequences.fa", SC, SL);
