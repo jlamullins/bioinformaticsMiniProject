@@ -7,6 +7,7 @@ import os
 
 charList = {0 : 'A', 1 : 'C', 2 : 'G', 3 : 'T'}
 nmPositions = [];
+plantedPositions = [];
 dirName = "dataset";
 dirNum = 1;
 
@@ -40,7 +41,7 @@ def benchmark(ML, NM, SL, SC):
     
     # Step 7: In a separate text file called "sites.txt" write down the location of 
     # the planted site in each sequence
-    writeSitesToFile(nmPositions, directory + "sites.txt", NM, True);
+    writeSitesToFile(nmPositions, directory + "sites.txt", SC, True);
     
     # Step 8: In a separate file called "motif.txt" write the motif that was
     # generated in step 3.
@@ -91,6 +92,7 @@ def addBindingSites(motif, SC, NM):
 def plantSampledSites(sequences, bindingSites, SC, SL, ML):
     for i in range(0, SC):
         j = random.randint(0, SL - ML - 1);
+        plantedPositions.append(j);
         k = 0;
         for k in range(0, ML -1):
             sequences[i][j+k] = bindingSites[i][k];
@@ -107,10 +109,10 @@ def writeSequencesToFiles(sequences,name, SC, SL ):
         f.write("\n");
     f.close();
     
-def writeSitesToFile(nmPositions, name, NM, ifComma):
+def writeSitesToFile(nmPositions, name, SC, ifComma):
     f = open(name, "w");
-    for i in range(0,NM):
-        f.write(str(nmPositions[i]));
+    for i in range(0,SC):
+        f.write(str(plantedPositions[i]));
         if (ifComma):
             f.write(",");
     f.close();
@@ -135,13 +137,13 @@ if __name__ == '__main__':
     SL = 500;
     SC = 10;
     i = 0;
-    
+
     # 10 with default
     while i < 10:
         benchmark(ML, NM, SL, SC);
         dirNum = dirNum + 1;
         i = i + 1;
-    
+     
     paramList = [0, 2];
     j = 0;
     while j < 2:
