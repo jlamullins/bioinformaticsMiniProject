@@ -1,0 +1,8 @@
+Compile gibbs using C++11
+
+g++ -o gibbs gibbs.cpp -std=c++0x
+
+
+Run with sequence.fa and motiflength.txt files
+
+./gibbs path_to_sequence/sequence.fa path_to_motiflength/motiflength.txt
