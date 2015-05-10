@@ -303,7 +303,7 @@ int main(int argc, char** argv)
 	gib.get_sequences(seq, ml, gib.sequences);
 
 	// Usually reaches a constant set of positions by 100. To be verified
-	int samples = 50;
+	int samples = 20;
 
 	// Initial positions are chosen randomly
 	int seq_len = gib.sequences[0].size();
@@ -313,7 +313,7 @@ int main(int argc, char** argv)
 	}
 
 	// Score each run, and pick positions from best score
-	int num_runs = 100000;
+	int num_runs = 25000;
 	double bestScore = 0, currentScore = 0;
 	int * bestPositions = new int[gib.sequences.size()];	// Store best positions, given the total score of positions
 	for(int runs = 0; runs < num_runs; runs++)
@@ -353,7 +353,7 @@ int main(int argc, char** argv)
 	// Quite a lot of for loops :(
 	for(int i = 0; i < gib.sequences.size(); i++)
 	{
-		gib.positions[i] = bestPositions[i];
+		gib.positions[i] = bestPositions[i] + 1; // I think benchmark sites start at index 1, not 0, so this is a fix to account for that
 	}
 
 	std::string outfile = "predictedmotiftest.txt", motifname = "MOTIFTEST";
@@ -366,7 +366,6 @@ int main(int argc, char** argv)
 
 	for(int j = 0; j < gib.sequences.size(); j++)
 	{
-		gib.positions[j]++;	// I think benchmark sites start at index 1, not 0, so this is a fix to account for that
 		std::cout << gib.positions[j] << " ";
 	}
 	std::cout << std::endl;
