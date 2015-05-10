@@ -97,13 +97,14 @@ class gibbs
 
 		void algorithm();
 
+		double getCurrentScore();
 		void get_sequences(std::string filename, std::string motiflength, std::vector<std::string> & sequences);
-		void write_motif_to_file(std::string filename, std::string motif_name, int length, matrixf matrix);
+		void write_motif_to_file(std::string filename, std::string motif_name, int length, matrixf& matrix);
 		void construct_pwm(std::vector<std::string>& sequences, int * positions, int motif_length, int skip_seq);
 		
 		std::vector<std::string> sequences;
 
 		int motif_length;
-		matrixf PWM;
+		matrixf PWM, PFM;
 		int * positions, num_sequences;
 };

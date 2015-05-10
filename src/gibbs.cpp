@@ -10,6 +10,30 @@ gibbs::~gibbs()
 	delete [] positions;
 }
 
+double gibbs::getCurrentScore()
+{
+	construct_pwm(sequences, positions, motif_length, -1);
+
+	double score = 0;
+	int pos_ctr = 0;
+	for(auto it = sequences.begin(); it != sequences.end(); it++)
+	{
+		for(int pos = 0; pos < motif_length; pos++)
+		{
+			if((*it)[positions[pos_ctr] + pos] == 'A')
+				score += log(PFM[0][pos] / 0.25);
+			else if((*it)[positions[pos_ctr] + pos] == 'C')
+				score += log(PFM[1][pos] / 0.25);
+			else if((*it)[positions[pos_ctr] + pos] == 'G')
+				score += log(PFM[2][pos] / 0.25);
+			else if((*it)[positions[pos_ctr] + pos] == 'T')
+				score += log(PFM[3][pos] / 0.25);
+		}
+
+		pos_ctr++;
+	}
+}
+
 // Main implementation
 void gibbs::algorithm()
 {
@@ -132,6 +156,7 @@ void gibbs::construct_pwm(std::vector<std::string>& sequences, int * positions, 
 		}
 	}
 
+	this->PFM = PFM;
 	this->PWM = PWM;
 }
 
@@ -167,7 +192,7 @@ void gibbs::get_sequences(std::string filename, std::string motiflength, std::ve
 	mlfile.close();
 }
 
-void gibbs::write_motif_to_file(std::string filename, std::string motif_name, int length, matrixf matrix)
+void gibbs::write_motif_to_file(std::string filename, std::string motif_name, int length, matrixf& matrix)
 {
 	std::fstream file;
 	
@@ -175,11 +200,11 @@ void gibbs::write_motif_to_file(std::string filename, std::string motif_name, in
 	
 	file << ">" << motif_name << "\t" << length << "\n";
 
-	for(int i = 0; i < length; i++)
+	for(int i = 0; i < matrix.getRows(); i++)
 	{
-		for(int j = 0; j < 4; j++)
+		for(int j = 0; j < matrix.getCols(); j++)
 		{
-			file << matrix[i * 4 + j] << "\t";
+			file << matrix[i][j] << "\t";
 		}
 
 		file << "\n";
@@ -188,6 +213,7 @@ void gibbs::write_motif_to_file(std::string filename, std::string motif_name, in
 	file << "<";
 
 	file.close();	
+
 }
 
 matrixf::matrixf()
@@ -276,7 +302,8 @@ int main(int argc, char** argv)
 
 	gib.get_sequences(seq, ml, gib.sequences);
 
-	int samples = 150;
+	// Usually reaches a constant set of positions by 100. To be verified
+	int samples = 25;
 
 	// Initial positions are chosen randomly
 	int seq_len = gib.sequences[0].size();
@@ -285,17 +312,61 @@ int main(int argc, char** argv)
 		gib.positions[i] = rand() % seq_len;
 	}
 
-	for(int i = 0; i < samples; i++)
+	// Score each run, and pick positions from best score
+	int num_runs = 10000;
+	double bestScore = 0, currentScore = 0;
+	int * bestPositions = new int[gib.sequences.size()];	// Store best positions, given the total score of positions
+	for(int runs = 0; runs < num_runs; runs++)
 	{
-		gib.algorithm();
-
-		for(int j = 0; j < gib.sequences.size(); j++)
+		for(int i = 0; i < gib.num_sequences; i++)
 		{
-			std::cout << gib.positions[j] << " ";
+			gib.positions[i] = rand() % seq_len;
 		}
 
-		std::cout << std::endl;
+		for(int i = 0; i < samples; i++)
+		{
+			gib.algorithm();
+
+			for(int j = 0; j < gib.sequences.size(); j++)
+			{
+				std::cout << gib.positions[j] << " ";
+			}
+
+			std::cout << std::endl;
+		}
+
+		currentScore = gib.getCurrentScore();
+
+		if(currentScore > bestScore)
+		{
+			bestScore = currentScore;
+
+			for(int l = 0; l < gib.sequences.size(); l++)
+			{
+				bestPositions[l] = gib.positions[l];
+			}
+		}
 	}
+
+	// Quite a lot of for loops :(
+	for(int i = 0; i < gib.sequences.size(); i++)
+	{
+		gib.positions[i] = bestPositions[i];
+	}
+
+	std::string outfile = "predictedmotiftest.txt", motifname = "MOTIFTEST";
+
+	// Need to construct the PFM with no skips, which is why the last parameter
+	// is -1
+	gib.construct_pwm(gib.sequences, gib.positions, gib.motif_length, -1);
+
+	gib.write_motif_to_file(outfile, motifname, gib.motif_length, gib.PFM);
+
+	for(int j = 0; j < gib.sequences.size(); j++)
+	{
+		std::cout << gib.positions[j] << " ";
+	}
+	std::cout << std::endl;
 
 	return 0;
 }
