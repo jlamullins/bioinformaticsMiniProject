@@ -90,6 +90,7 @@ def addBindingSites(motif, SC, NM):
     return scBindingSites;
 
 def plantSampledSites(sequences, bindingSites, SC, SL, ML):
+    plantedPositions[:] = []
     for i in range(0, SC):
         j = random.randint(0, SL - ML - 1);
         plantedPositions.append(j);
