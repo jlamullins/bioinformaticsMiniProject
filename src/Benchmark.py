@@ -67,8 +67,7 @@ def createSequence (len):
     return result;
 
 def createMotif(ML, NM):
-	nmPositions[:] = [];
-    nmPositions[:] = [] ## Clear nmPositions
+    nmPositions[:] = []; ## Clear nmPositions
     motif = createSequence(ML);
     i = 0;
     while i < NM:
@@ -100,8 +99,6 @@ def plantSampledSites(sequences, bindingSites, SC, SL, ML):
         for k in range(0, ML -1):
             sequences[i][j+k] = bindingSites[i][k];
             if bindingSites[i][k] == '*':
-				print("Uh oh:::SHOULD NOT GET HERE! BINDING SITES HAS AN *");
-				sequences[i][j+k] = charList[random.randint(0,3)]; # Not sure if this is a fix.. check please?
                 print("Uh oh:::SHOULD NOT GET HERE! BINDING SITES HAS AN *");
                 sequences[i][j+k] = charList[random.randint(0,3)]; # Not sure if this is a fix.. check please?
             k = k + 1;
