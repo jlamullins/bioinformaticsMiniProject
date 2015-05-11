@@ -95,7 +95,7 @@ class gibbs
 		gibbs();
 		~gibbs();
 
-		void algorithm();
+		void algorithm(int skip);
 
 		double getCurrentScore();
 		void get_sequences(std::string filename, std::string motiflength, std::vector<std::string> & sequences);

@@ -35,10 +35,8 @@ double gibbs::getCurrentScore()
 }
 
 // Main implementation
-void gibbs::algorithm()
+void gibbs::algorithm(int skip)
 {
-
-	int skip = rand() % num_sequences;
 
 	construct_pwm(sequences, positions, motif_length, skip);
 
@@ -308,7 +306,7 @@ int main(int argc, char** argv)
 	std::cout << " Done." << std::endl;
 
 	// Usually reaches a constant set of positions by 100. To be verified
-	int samples = 50;
+	int samples = 125;
 
 	// Initial positions are chosen randomly
 	int seq_len = gib.sequences[0].size();
@@ -318,7 +316,7 @@ int main(int argc, char** argv)
 	}
 
 	// Score each run, and pick positions from best score
-	int num_runs = 85000;
+	int num_runs = 55000 - (55000 % gib.sequences.size());	// Closest number to 25000 that's a multiple of # sequences
 	double bestScore = 0, currentScore = 0;
 	int * bestPositions = new int[gib.sequences.size()];	// Store best positions, given the total score of positions
 
@@ -333,7 +331,7 @@ int main(int argc, char** argv)
 
 		for(int i = 0; i < samples; i++)
 		{
-			gib.algorithm();
+			gib.algorithm(i % gib.sequences.size());
 
 /*
 			for(int j = 0; j < gib.sequences.size(); j++)
@@ -367,7 +365,7 @@ int main(int argc, char** argv)
 	// Quite a lot of for loops :(
 	for(int i = 0; i < gib.sequences.size(); i++)
 	{
-		gib.positions[i] = bestPositions[i] + 1;
+		gib.positions[i] = bestPositions[i];
 	}
 
 	std::string motifname = "MOTIF" + dataset;

@@ -97,6 +97,8 @@ def plantSampledSites(sequences, bindingSites, SC, SL, ML):
         k = 0;
         for k in range(0, ML -1):
             sequences[i][j+k] = bindingSites[i][k];
+            if bindingSites[i][k] == '*':
+				sequences[i][j+k] = charList[random.randint(0,3)]; # Not sure if this is a fix.. check please?
             k = k + 1;
         i = i + 1;
     return sequences;
