@@ -289,9 +289,9 @@ void matrixf::print()
 
 int main(int argc, char** argv)
 {
-	if(argc < 3) 
+	if(argc < 6) 
 	{
-		std::cout << "Invalid. Run with ./gibbs sequences.fa motiflength.txt" << std::endl;
+		std::cout << "Invalid. Run with ./gibbs sequences.fa motiflength.txt predictedsites.txt predictedmotif.txt datasetNumber" << std::endl;
 		return -1;
 	}
 
@@ -299,11 +299,16 @@ int main(int argc, char** argv)
 
 	std::string seq = argv[1];
 	std::string ml = argv[2];
+	std::string outsites = argv[3];
+	std::string outmotif = argv[4];
+	std::string dataset = argv[5];
 
+	std::cout << "Getting sequences and motif length...";
 	gib.get_sequences(seq, ml, gib.sequences);
+	std::cout << " Done." << std::endl;
 
 	// Usually reaches a constant set of positions by 100. To be verified
-	int samples = 20;
+	int samples = 50;
 
 	// Initial positions are chosen randomly
 	int seq_len = gib.sequences[0].size();
@@ -313,9 +318,12 @@ int main(int argc, char** argv)
 	}
 
 	// Score each run, and pick positions from best score
-	int num_runs = 25000;
+	int num_runs = 85000;
 	double bestScore = 0, currentScore = 0;
 	int * bestPositions = new int[gib.sequences.size()];	// Store best positions, given the total score of positions
+
+	double percent = 0;
+
 	for(int runs = 0; runs < num_runs; runs++)
 	{
 		for(int i = 0; i < gib.num_sequences; i++)
@@ -348,27 +356,48 @@ int main(int argc, char** argv)
 				bestPositions[l] = gib.positions[l];
 			}
 		}
+
+		percent++;
+
+		std::cout << "\rRunning Gibbs Sampling algorithm... " << percent / num_runs * 100 << "%" << "         \b\b\b\b\b\b\b\b\b";
 	}
+
+	std::cout << "\rRunning Gibbs Sampling algorithm...            \b\b\b\b\b\b\b\b\b\b\bDone." << std::endl;
 
 	// Quite a lot of for loops :(
 	for(int i = 0; i < gib.sequences.size(); i++)
 	{
-		gib.positions[i] = bestPositions[i] + 1; // I think benchmark sites start at index 1, not 0, so this is a fix to account for that
+		gib.positions[i] = bestPositions[i] + 1;
 	}
 
-	std::string outfile = "predictedmotiftest.txt", motifname = "MOTIFTEST";
+	std::string motifname = "MOTIF" + dataset;
 
 	// Need to construct the PFM with no skips, which is why the last parameter
 	// is -1
 	gib.construct_pwm(gib.sequences, gib.positions, gib.motif_length, -1);
 
-	gib.write_motif_to_file(outfile, motifname, gib.motif_length, gib.PFM);
+	gib.write_motif_to_file(outmotif, motifname, gib.motif_length, gib.PFM);
 
+	/*
 	for(int j = 0; j < gib.sequences.size(); j++)
 	{
 		std::cout << gib.positions[j] << " ";
 	}
 	std::cout << std::endl;
+	*/
+
+	std::fstream sitefile;
+
+	sitefile.open(outsites.c_str(), std::ios::out | std::ios::trunc);
+
+	for(int j = 0; j < gib.sequences.size(); j++)
+	{
+		sitefile << gib.positions[j] << " ";
+	}
+
+	sitefile << "\n";
+
+	sitefile.close();
 
 	return 0;
 }
