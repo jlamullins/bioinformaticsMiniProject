@@ -96,12 +96,11 @@ def plantSampledSites(sequences, bindingSites, SC, SL, ML):
         j = random.randint(0, SL - ML - 1);
         plantedPositions.append(j);
         k = 0;
-        for k in range(0, ML -1):
+        for k in range(0, ML):
             sequences[i][j+k] = bindingSites[i][k];
             if bindingSites[i][k] == '*':
                 print("Uh oh:::SHOULD NOT GET HERE! BINDING SITES HAS AN *");
                 sequences[i][j+k] = charList[random.randint(0,3)]; # Not sure if this is a fix.. check please?
-            k = k + 1;
         i = i + 1;
     return sequences;
 
