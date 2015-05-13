@@ -148,6 +148,7 @@ if __name__ == '__main__':
         dirNum = dirNum + 1;
         i = i + 1;
      
+    ## Changing NM 
     paramList = [0, 2];
     j = 0;
     while j < 2:
@@ -159,6 +160,8 @@ if __name__ == '__main__':
             i = i + 1;
         j = j+ 1; 
     NM = 1;      
+    
+    ## Changing ML
     paramList = [6, 7];
     j = 0;
     while j < 2:
@@ -170,6 +173,8 @@ if __name__ == '__main__':
             i = i + 1;
         j = j+ 1;  
     ML = 8;
+    
+    ## Changing SC
     paramList = [5, 20];
     j = 0;
     while j < 2:
