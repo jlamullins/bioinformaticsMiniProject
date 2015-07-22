@@ -1,7 +1,7 @@
 '''
 Created on May 11, 2015
 
-@author: SethT
+@author: Jessica Mullins
 '''
 from __future__ import division
 import os
@@ -98,7 +98,7 @@ def readSites(filename, tab):
         else:
             return  line.strip().split()
 
-def getOverlap(mFileName, pFileName, SC):
+def getMatchingSites(mFileName, pFileName, SC):
     ## Read motif data
     sitesData = readSites(mFileName + "/sites.txt", False);
     ## Read predicted motif
@@ -112,10 +112,29 @@ def getOverlap(mFileName, pFileName, SC):
         if int(sitesData[j]) == int(pPWM[j]):
             count = count + 1;
         total = total + 1;
-    
+    x = count/total;
+    return x
+        
+def getOverlap(mFileName, pFileName, SC, ML):
+    diff = 0;
+    ## Read motif data
+    sitesData = readSites(mFileName + "/sites.txt", False);
+    ## Read predicted motif
+    pPWM = readSites(pFileName + "/predictedsites.txt", True)
+  #  print pPWM
+  #  print sitesData
+    count = 0.0;
+    total = 0.0;
+    for j in range (0, SC):
+    #    print j
+        temp = int(sitesData[j]) - int(pPWM[j]);
+        temp = abs(temp);
+        if temp < ML: ## There is overlap
+            ## The overlap is the difference between ML and temp
+            count = count + (ML - temp);
  #   print count
  #   print total
-    x = count / total;
+    x = count / (ML * SC);
     return x ## returns overlap percentage
 
 def strToNum(pPWM, len):
@@ -123,6 +142,15 @@ def strToNum(pPWM, len):
         for j in range(len):
             pPWM[i][j] = float(pPWM[i][j])
     return pPWM;
+
+def printEntropy (result, len):
+    temp = "";
+    for i in range(0, 10):
+        print("NUMBER: " + str(i))
+        for j in range(0, len):
+            temp = temp + str(result[i][j]) + ","
+        print(temp)
+        temp = ""
 
 def normalize(pPWM, summationP, len):
     for i in range(4):
@@ -140,91 +168,119 @@ if __name__ == '__main__':
     ## Read the default data
     dataSet = 1;
     defaultResults = [];
+    defaultMatchingResults = [];
     defaultOverlappingResults = [];
     for dataSet in range(1,11):
         defaultResults.append(getResults(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet)));
-        defaultOverlappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        defaultMatchingResults.append(getMatchingSites(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        defaultOverlappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10, 8));
     print ("DEFAULT")
     print ("Relative entropy")
-    print defaultResults;
-    print ("% of overlapping Sites")
+    printEntropy(defaultResults, 8);
+    print ("% exact matching Sites")
+    print defaultMatchingResults
+    print ("% of overlap")
     print defaultOverlappingResults
-     
+       
     ## Check when NM is = 0
     dataSet = 11;
     nm0Results = [];
     nm0OverLappingResults = []
+    nm0MatchingResults = []
     for dataSet in range(11,21):
         nm0Results.append(getResults(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet)));
-        nm0OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        nm0MatchingResults.append(getMatchingSites(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        nm0OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10, 8));
     print("NM = 0")
     print ("Relative Entropy")
-    print nm0Results;
+    printEntropy(nm0Results, 8);
+    print ("% of exact matching sites")
+    print nm0MatchingResults;
     print ("% of overlapping sites")
     print nm0OverLappingResults;
-         
+           
     ## Check when NM is = 2
     dataSet = 21;
     nm2Results = [];
-    nm2OverLappingResults = []
+    nm2OverLappingResults = [];
+    nm2MatchingResults = [];
     for dataSet in range(21,31):
         nm2Results.append(getResults(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet)));
-        nm2OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        nm2MatchingResults.append(getMatchingSites(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        nm2OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10, 8));
     print("NM = 2")
-    print ("Relative entropy")
-    print nm2Results;
+    print ("Relative Entropy")
+    printEntropy(nm2Results, 8);
+    print ("% of exact matching sites")
+    print nm2MatchingResults;
     print ("% of overlapping sites")
     print nm2OverLappingResults;
- 
     ## Check when ML is = 6
     dataSet = 31;
     ml6Results = [];
     ml6OverLappingResults = []
+    ml6MatchingResults = []
     for dataSet in range(31,41):
         ml6Results.append(getResults(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet)));
-        ml6OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        ml6MatchingResults.append(getMatchingSites(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        ml6OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10, 6));
     print("ML = 6")
     print ("Relative Entropy")
-    print ml6Results;
+    printEntropy(ml6Results, 6);
+    print ("% of exact matching sites")
+    print ml6MatchingResults
     print ("% of overlapping sites")
     print ml6OverLappingResults;
- 
+   
     ## Check when ML is = 7
     dataSet = 41;
     ml7Results = [];
     ml7OverLappingResults = []
+    ml7MatchingResults = []
     for dataSet in range(41,51):
         ml7Results.append(getResults(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet)));
-        ml7OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        ml7MatchingResults.append(getMatchingSites(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10));
+        ml7OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 10, 7));
     print("ML = 7")
     print ("Relative Entropy")
-    print ml7Results;
+    printEntropy(ml7Results,7);
+    print ("% of exact matching sites")
+    print ml7MatchingResults
     print ("% of overlapping sites")
     print ml7OverLappingResults;
-    
+      
     ## Check when SC is = 5
     dataSet = 51;
     sc5Results = [];
     sc5OverLappingResults = []
+    sc5MatchingResults = []
     for dataSet in range(51,61):
         sc5Results.append(getResults(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet)));
-        sc5OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 5));
+        sc5MatchingResults.append(getMatchingSites(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 5));
+        sc5OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 5, 8));
     print("SC = 5")
     print ("Relative Entropy")
-    print sc5Results;
+    printEntropy(sc5Results, 8);
+    print ("% of exact matching sites")
+    print sc5MatchingResults
     print ("% of overlapping Sites")
     print sc5OverLappingResults;
-
+  
     ## Check when SC is = 20
     dataSet = 61;
     sc20Results = [];
     sc20OverLappingResults = []
+    sc20MatchingResults = []
     for dataSet in range(61,71):
         sc20Results.append(getResults(motifFileName + str(dataSet), predictedMotifFileName + str(dataSet)));
-        sc20OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 20));
+        sc20MatchingResults.append(getMatchingSites(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 20));
+        sc20OverLappingResults.append(getOverlap(motifFileName+str(dataSet), predictedMotifFileName + str(dataSet), 20, 8));
+
     print("SC = 20")
     print ("Relative Entropy")
-    print sc20Results;
+    printEntropy(sc20Results, 8);
+    print ("% of exact matching sites")
+    print sc20MatchingResults
     print ("% of overlapping Sites")
     print sc20OverLappingResults;
 
